@@ -4,12 +4,13 @@ const express = require('express')
 connectToMongo();
 
 const app = express()
-const port = 3000
+const port = 5000
 
 /* 
-  *express.json() is a built-in middleware function in the Express.js web framework that parses incoming JSON data from the request body of an HTTP POST or PUT request and makes it available in the request.body object.
+  *express.json() is a built-in middleware function in the Express.js web framework.
+  *It parses incoming JSON data from the request body of an HTTP POST or PUT request
+  *and makes it available in the request.body object.
 */
-
 app.use(express.json())
 
 // Available Routes

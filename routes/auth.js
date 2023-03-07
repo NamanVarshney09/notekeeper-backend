@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User')
 const bcrypt = require('bcryptjs');
+const fetchuser = require('../middleware/fetchuser');
 const jwt = require('jsonwebtoken');
 
 // express-validator is a set of express.js middlewares that wraps validator.js validator and sanitizer functions.
@@ -90,4 +91,18 @@ router.post('/login', [
     }
 })
 
+/* 
+    TODO: Get Logged in user details using POST "/api/auth/getuser"
+    *Login required
+*/
+router.post('/getuser', fetchuser, async (req, res) => {
+    try {
+        userId = req.user.id;
+        const user = await User.findById(userId).select("-password");
+        res.json(user);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json("Internal server error occurred !");
+    }
+})
 module.exports = router

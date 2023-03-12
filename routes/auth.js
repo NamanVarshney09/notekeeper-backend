@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User')
+const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const fetchuser = require('../middleware/fetchuser');
 const jwt = require('jsonwebtoken');
-
 // express-validator is a set of express.js middlewares that wraps validator.js validator and sanitizer functions.
 const { body, validationResult } = require('express-validator');
 
@@ -19,21 +18,19 @@ router.post('/createuser', [
     body('email', 'Enter a valid email').isEmail(),
     body('password', 'Password must be at least 8 characters long').isLength({ min: 8 }),
 ], async (req, res) => {
+    // To capture the response state at the client side.
+    let isValid = false;
+
     //Returns bad request and errors if any validation fails
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ isValid, errors: errors.array() });
     }
     try {
-        /*  
-            *Check if the user with this email already exists
-            ? find().limit(1) is significantly faster than findOne
-            find().limit(1) returns a cursor while findOne() will read the document, return it to you, and close the cursor if the record exists
-        */
+        //Check if the user with this email already exists
         let user = await User.findOne({ email: req.body.email });
-        if (user) {
-            return res.status(400).json({ error: "This email is already registered" })
-        }
+        if (user)
+            return res.status(400).json({ isValid, error: "This email is already registered" })
 
         const salt = await bcrypt.genSalt(10);
         const securePassword = await bcrypt.hash(req.body.password, salt);
@@ -49,10 +46,11 @@ router.post('/createuser', [
             }
         }
         const authToken = jwt.sign(data, JWT_SECRET);
-        res.json({ authToken })
+        isValid = true;
+        res.json({ isValid, authToken })
     } catch (error) {
         console.error(error.message);
-        res.status(500).json("Internal error occurred !");
+        res.status(500).json({ isValid, error: "Internal error occurred !" });
     }
 })
 
@@ -65,29 +63,33 @@ router.post('/login', [
     body('email', 'Enter a valid email').isEmail(),
     body('password', 'Password cannot be blank').exists()
 ], async (req, res) => {
+    // To capture the response state at the client side.
+    let isValid = false;
+
     //Returns bad request and errors if any validation fails
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    const { email, password } = req.body;
+    if (!errors.isEmpty())
+        return res.status(400).json({ isValid, errors: errors.array() });
+
     try {
+        const { email, password } = req.body;
         let user = await User.findOne({ email });
         if (!user)
-            return res.status(400).json({ error: "Please enter correct credentials" });
+            return res.status(400).json({ isValid, error: "Please enter correct credentials" });
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch)
-            return res.status(400).json({ error: "Please enter correct credentials" });
+            return res.status(400).json({ isValid, error: "Please enter correct credentials" });
         const data = {
             user: {
                 id: user.id
             }
         }
         const authToken = jwt.sign(data, JWT_SECRET);
-        res.json({ authToken })
+        isValid = true;
+        res.json({ isValid, authToken })
     } catch (error) {
         console.error(error.message);
-        res.status(500).json("Internal server error occurred !");
+        res.status(500).json({ isValid, error: "Internal server error occurred !" });
     }
 })
 
@@ -97,12 +99,17 @@ router.post('/login', [
 */
 router.post('/getuser', fetchuser, async (req, res) => {
     try {
+        // To capture the response state at the client side.
+        let isValid = false;
+        
         userId = req.user.id;
         const user = await User.findById(userId).select("-password");
-        res.json(user);
+        isValid = true;
+        res.json({isValid, user});
+
     } catch (error) {
         console.error(error.message);
-        res.status(500).json("Internal server error occurred !");
+        res.status(500).json({isValid, error:"Internal server error occurred !"});
     }
 })
 module.exports = router

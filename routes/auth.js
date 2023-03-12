@@ -7,7 +7,9 @@ const jwt = require('jsonwebtoken');
 // express-validator is a set of express.js middlewares that wraps validator.js validator and sanitizer functions.
 const { body, validationResult } = require('express-validator');
 
-const JWT_SECRET = "TheDarkLord";
+const dotenv = require('dotenv');
+dotenv.config();
+const JWT_SECRET = process.env.JWT_SECRET;
 
 /* 
     TODO: Create a User using POST "/api/auth/createuser"

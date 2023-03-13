@@ -96,14 +96,13 @@ router.post('/login', [
 })
 
 /* 
-    TODO: Get Logged in user details using POST "/api/auth/getuser"
+    TODO: Get Logged in user details using GET "/api/auth/getuser"
     *Login required
 */
-router.post('/getuser', fetchuser, async (req, res) => {
+router.get('/getuser', fetchuser, async (req, res) => {
+    // To capture the response state at the client side.
+    let isValid = false;
     try {
-        // To capture the response state at the client side.
-        let isValid = false;
-        
         userId = req.user.id;
         const user = await User.findById(userId).select("-password");
         isValid = true;

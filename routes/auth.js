@@ -26,7 +26,7 @@ router.post('/createuser', [
     //Returns bad request and errors if any validation fails
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ isValid, errors: errors.array() });
+        return res.status(400).json({ isValid, error: errors.array() });
     }
     try {
         //Check if the user with this email already exists
@@ -71,7 +71,7 @@ router.post('/login', [
     //Returns bad request and errors if any validation fails
     const errors = validationResult(req);
     if (!errors.isEmpty())
-        return res.status(400).json({ isValid, errors: errors.array() });
+        return res.status(400).json({ isValid, error: errors.array() });
 
     try {
         const { email, password } = req.body;

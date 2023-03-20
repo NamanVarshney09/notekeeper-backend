@@ -22,18 +22,18 @@ router.get('/fetchexpenses', fetchuser, async (req, res) => {
     TODO: Add new expense using POST "/api/notes/addexpense"
     *Login required
 */
-router.post('/addexpense',fetchuser,[
-    body('name', 'Enter a valid expense name').isLength({min:3}),
+router.post('/addexpense', fetchuser, [
+    body('name', 'Enter a valid expense name').isLength({ min: 3 }),
     body('amount', 'Enter a valid amount').isNumeric()
-],async(req, res)=>{
-    const { name, amount, tag } = req.body;
+], async (req, res) => {
+    const { name, amount, category, mode } = req.body;
     //Returns bad request and errors if any validation fails
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
     try {
-        const expense = await Expense.create({name, amount, tag, user: req.user.id});
+        const expense = await Expense.create({ name, amount, category, mode, user: req.user.id });
         res.json(expense);
 
     } catch (error) {
@@ -48,12 +48,12 @@ router.post('/addexpense',fetchuser,[
 */
 router.put('/updateexpense/:id', fetchuser, async (req, res) => {
     try {
-        const { name, amount, tag } = req.body;
+        const { name, amount, category } = req.body;
         //Create a newExpense object
-        const newExpense  = {};
+        const newExpense = {};
         if (name) { newExpense.name = name };
         if (amount) { newExpense.amount = amount };
-        if (tag) { newExpense.tag = tag };
+        if (category) { newExpense.category = category };
 
         // Find the expense to be updated and modify it
         let expense = await Expense.findById(req.params.id);

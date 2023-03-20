@@ -18,9 +18,14 @@ const ExpensesSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    tag:{
+    category:{
         type: String,
-        default: 'General'
+        default: 'Personal'
+    },
+    mode:{
+        type: String,
+        required: true,
+        default: 'UPI'
     }    
 })
 

@@ -11,7 +11,8 @@ const { body, validationResult } = require('express-validator');
 router.get('/fetchexpenses', fetchuser, async (req, res) => {
     try {
         const expenses = await Expense.find({ user: req.user.id });
-        res.json(expenses)
+        const totalExpenses = Object.values(expenses).reduce((total, { amount }) => total + parseInt(amount), 0)
+        res.json({ expenses, totalExpenses })
     } catch (error) {
         console.error(error.message);
         res.status(500).json("Internal error occurred !");

@@ -10,7 +10,7 @@ const { body, validationResult } = require('express-validator');
 */
 router.get('/fetchexpenses', fetchuser, async (req, res) => {
     try {
-        const expenses = await Expense.find({ user: req.user.id });
+        const expenses = await Expense.find({ user: req.user.id }).sort({date:-1});
         const totalExpenses = Object.values(expenses).reduce((total, { amount }) => total + parseInt(amount), 0)
         res.json({ expenses, totalExpenses })
     } catch (error) {
